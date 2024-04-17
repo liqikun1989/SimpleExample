@@ -17,14 +17,13 @@ class ExampleMainViewModel(application: Application) : BaseViewModel(application
     fun loadExampleData() {
         load(
             {
-                exampleData.postValue(ExampleRepository.getInstance().loadExampleData("", ""))
-            },
-            {
 
             },
             {
 
             }
-        )
+        ) {
+            exampleData.postValue(ExampleRepository.getInstance().loadExampleData("", ""))
+        }
     }
 }

@@ -1,13 +1,12 @@
 package com.cw.simple.example.app.net
 
 import android.content.Context
-import com.alibaba.fastjson.support.retrofit.Retrofit2ConverterFactory
 import com.cw.simple.example.app.net.interceptor.LoggingInterceptor
 import okhttp3.Cache
-import okhttp3.CacheControl
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.HostnameVerifier
@@ -21,7 +20,6 @@ class RetrofitServer {
 
         private lateinit var retrofit: Retrofit
         private lateinit var okHttpClient: OkHttpClient
-        private lateinit var cacheControl: CacheControl
         private var interceptors: MutableList<Interceptor> = mutableListOf()
 
         fun init(context: Context, baseUrl: String, interceptors: MutableList<Interceptor> = mutableListOf()) {
@@ -30,7 +28,7 @@ class RetrofitServer {
                 retrofit
             } else {
                 Retrofit.Builder().baseUrl(baseUrl)
-                    .addConverterFactory(Retrofit2ConverterFactory())
+                    .addConverterFactory(GsonConverterFactory.create())
                     .client(getUnsafeOkHttpClient(context))
                     .build()
             }
@@ -38,15 +36,6 @@ class RetrofitServer {
 
         fun getRetrofit(): Retrofit {
             return retrofit
-        }
-
-        fun getCacheControl(): CacheControl {
-            cacheControl = if (Companion::cacheControl.isInitialized) {
-                cacheControl
-            } else {
-                CacheControl.Builder().maxAge(5, TimeUnit.MINUTES).build()
-            }
-            return cacheControl
         }
 
         private fun getUnsafeOkHttpClient(context: Context): OkHttpClient {
@@ -74,6 +63,9 @@ class RetrofitServer {
                     hostnameVerifier(HostnameVerifier { _, _ -> true })
                     interceptors().addAll(interceptors)
                     addInterceptor(LoggingInterceptor())
+                    connectTimeout(10, TimeUnit.SECONDS)
+                    readTimeout(10, TimeUnit.SECONDS)
+                    writeTimeout(20, TimeUnit.SECONDS)
                     cache(Cache(context.applicationContext.getDir("okhttpCache", Context.MODE_PRIVATE), 5 * 1024 * 1024))
                 }.build()
 
