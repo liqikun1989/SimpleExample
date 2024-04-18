@@ -1,4 +1,4 @@
-package com.cw.simple.example.app.ui
+package com.cw.simple.example.app.ext
 
 import android.view.View
 
